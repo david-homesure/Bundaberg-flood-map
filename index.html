@@ -27,12 +27,12 @@
   }).addTo(map);
 
   // Queensland Flood Mapping WMS overlay
-  const floodLayer = L.tileLayer.wms("https://gisservices.information.qld.gov.au/arcgis/services/FloodCheck/MapServer/WMSServer", {
-    layers: '3',
-    format: 'image/png',
-    transparent: true,
-    attribution: '© Queensland Government'
-  }).addTo(map);
+ const floodLayer = L.tileLayer.wms("https://gisservices.information.qld.gov.au/arcgis/services/FloodCheck/MapServer/WMSServer", {
+  layers: 'FloodCheck_Inundation',
+  format: 'image/png',
+  transparent: true,
+  attribution: '© Queensland Government FloodCheck'
+}).addTo(map);
 
   // Load and parse CSV with property data
   fetch('geocoded_addresses.csv')
