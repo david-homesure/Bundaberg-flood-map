@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Property Map with Flood Overlay</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.3.1/papaparse.min.js"></script>
+  <script>
+    var map = L.map('map').setView([-24.8667, 152.35], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Load property CSV data
+    fetch('geocoded_addresses.csv')
+      .then(response => response.text())
+      .then(csv => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            results.data.forEach(function(row) {
+              if (row.Latitude && row.Longitude) {
+                const marker = L.marker([parseFloat(row.Latitude), parseFloat(row.Longitude)]).addTo(map);
+                marker.bindPopup(`
+                  <b>${row.Address}</b><br/>
+                  Property Type: ${row['Property Type']}<br/>
+                  Land Size: ${row['Land Size (m²)']} m²<br/>
+                  Sale Price: ${row['Sale Price']}<br/>
+                  Settlement Date: ${row['Settlement Date']}<br/>
+                  Land Use: ${row['Land Use']}<br/>
+                  Development Zone: ${row['Development Zone']}<br/>
+                  Parcel Details: ${row['Parcel Details']}<br/>
+                  Owner Name: ${row['Owner Name']}
+                `);
+              }
+            });
+          }
+        });
+      });
+
+    // Load flood overlay from GeoJSON
+    fetch('bundaberg_flood_2013.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: {
+            color: 'blue',
+            weight: 2,
+            fillOpacity: 0.3
+          }
+        }).addTo(map);
+      });
+  </script>
+</body>
+</html>
